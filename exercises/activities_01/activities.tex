@@ -1,0 +1,71 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=.8in]{geometry}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=magenta
+}
+
+\title{Exercise 1}
+\author{Deep Learning Lab}
+
+\begin{document}
+
+\maketitle
+
+\section{Computational Resources and Basic Setups}
+In this section, your task is to briefly check that you have access to all computational resources you will potentially need for this course:
+\begin{enumerate}
+ \item If not already done, install \href{https://www.python.org}{Python} on your \textbf{personal computer}. Make sure that you are using Python 3.
+Using \href{https://packaging.python.org/tutorials/installing-packages/#use-pip-for-installing}{pip}, install the packages \texttt{numpy}, \texttt{matplotlib}, and \texttt{torch}.
+Optionally, install these packages in a virtual environment, for example using
+\href{https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/installing-with-conda.html}{conda} by installing it from
+\href{https://docs.conda.io/en/latest/miniconda.html}{here}.
+\item Verify that you can access and use \href{https://colab.research.google.com}{Google Colab}.
+Make sure that you know how to enable GPUs (Edit/Notebook settings/Hardware accelerator).
+% \item Run the example in Slide 18 using your personal computer.
+\item (Optional) Verify that you can access and use \href{https://www.kaggle.com/code}{Kaggle}. If you want to already enable access to GPUs, follow the instruction shown during the lecture.
+ \item (Optional) Verify that you can use SSH to connect to USI's ICS cluster (using the credentials provided during the lecture).
+The general instruction can be found \href{https://intranet.ics.usi.ch/HPC}{here}.
+You will have to learn how to check the status of the cluster, submit, monitor, and kill jobs.
+% \item Run the example in Slide 18 using the \textbf{ICS cluster}: adapt the script in Pg. 12 as needed, and remember to use \emph{sbatch}.
+\end{enumerate}
+\section{Python and NumPy}
+
+\begin{enumerate}
+ \item If you are not familiar with Python, quickly read the \href{https://docs.python.org/3/tutorial/}{Python tutorial}.
+This question must be prioritized over the next question!
+ \item Follow the \href{https://docs.scipy.org/doc/numpy/user/quickstart.html}{NumPy quickstart tutorial}. You should be able to:
+ \begin{itemize}
+  \item Create multidimensional arrays and inspect their shapes.
+  \item Convert a Python list to a numpy array.
+  \item Perform element-wise arithmetic operations between arrays.
+  \item Perform arithmetic operations between arrays and scalars.
+  \item Perform matrix multiplications using \texttt{np.dot},  \texttt{@}, or \texttt{matmul}.
+  \item Perform unary operations on arrays (e.g., \texttt{max}, \texttt{sum}).
+  \item Apply functions element-wise to an array (e.g., \texttt{np.sqrt}).
+  \item Index elements, slice arrays, index using lists of elements, and index using Boolean arrays.
+  \item Use \texttt{np.arange}.
+  \item Reshape arrays. 
+ \end{itemize}
+
+% \item If you have time left, read about \href{https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html}{NumPy broadcasting}. 
+
+% \item Consider the system of linear equations represented by $\mathbf{A} \mathbf{x} = \mathbf{b}$,\\ where $\mathbf{b} = [1, 2, 3]^T$ and
+% \begin{equation*}
+%  \mathbf{A} = 
+%    \begin{bmatrix}
+%    2 & -1 & 0 \\
+%    -1 & 2 & -1 \\
+%    0 & -1 & 2
+%    \end{bmatrix}.
+% \end{equation*}
+%  Find $\mathbf{x}$, using a function to invert $\mathbf{A}$ (NumPy: \emph{np.linalg.inv}, PyTorch: \emph{torch.inverse}).
+\end{enumerate}
+\end{document}

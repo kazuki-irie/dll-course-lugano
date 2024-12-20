@@ -1,0 +1,285 @@
+\documentclass[10pt]{beamer}
+% \documentclass[aspectratio=169]{beamer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Select input file encoding:
+%%   utf8   - UTF-8, nowadays standard on most operating systems
+%%   latin1 - ISO-8859-1
+\usepackage[utf8]{inputenc}
+\usefonttheme[onlymath]{serif}
+\usepackage[normalem]{ulem}
+% grey after pause if [<+>] appended to itemize:
+\setbeamercovered{invisible}
+\setbeamercovered{%
+	again covered={\opaqueness<1->{15}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Select language
+%%
+% \usepackage[ngerman]{babel}        % Deutsch, neue Rechtschreibung
+\usepackage[english]{babel}       % English
+
+\usetheme{rwth}
+\usepackage[T1]{fontenc}           % Font encoding (don't change!)
+\usepackage{lmodern}               % Select Linux Modern Fonts (don't change)
+% \usepackage{sansmathfonts}         % Sans fonts in math environments
+\usepackage{textcomp}              % fix 'missing font symbols' warning
+%\renewcommand{\rmdefault}{phv}     % Arial like (Helvetica)
+%\renewcommand{\sfdefault}{phv}     % Arial like (Helvetica)
+\usepackage[scaled=0.92]{helvet}
+% \usepackage[default]{lato}
+
+\usepackage[ddmmyyyy]{datetime}
+\renewcommand{\dateseparator}{.}
+
+%% graphics related packages
+\usepackage{graphicx}              % needed to include graphics (don't change)
+\usepackage{epstopdf}              % required to include eps files
+%\usepackage{svg}                   % include svg files (requires Inkscape)
+\usepackage[encoding,filenameencoding=utf8]{grffile} % allow utf8 file names in graphics
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% import packages for content
+%%
+%\usepackage{listings}                           % for lstlisting and \lstinline|..|
+%\usepackage{minted}
+%% TikZ can be used to /program/ graphics.
+\usepackage{tikz}                                % comment-out, if you don't need this.
+%% some TikZ-libraries and settings for the examples...
+\usetikzlibrary{shadings}           % GW: color gradients
+\usetikzlibrary{arrows,calc,positioning,fit,matrix,shadows,chains,arrows,shapes,spy,fadings}
+\usepackage{pgfplots}
+\usetikzlibrary{pgfplots.units,shapes.symbols,shapes.arrows}
+%\usetikzlibrary{pgfplots.external}
+%\tikzexternalize[prefix=tmp/]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Custom packages and definitions
+
+% Mathematikumgebung
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{sansmath}
+
+% tabularx -> bessere "tabular"-Umgebung
+\usepackage{tabularx}
+
+% zusätzliche Formatbezeichner für die tabularx-Umgebung
+\newcolumntype{L}{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}X}
+\newcolumntype{R}{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}X}
+\newcolumntype{C}{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}X}
+
+% center text vertically in tabularx(column)
+%\renewcommand{\tabularxcolumn}[1]{>{\large}m{#1}}
+
+% Bessere Tabellenlinien
+\usepackage{booktabs}
+
+% Tabellenzeilen für booktabs anpassen -> call on frame with table
+\newcommand{\fixbooktabsrowhight}{%
+  \setlength{\aboverulesep}{0pt}
+  \setlength{\belowrulesep}{0pt}
+  \setlength{\extrarowheight}{.5ex}
+}
+
+% Zellen über mehrere Zeilen
+\usepackage{multirow}
+\usepackage{hhline}
+
+\DeclareMathOperator\LSTM{LSTM}
+\DeclareMathOperator\LayerNorm{LayerNorm}
+\DeclareMathOperator\SelfAttention{SelfAttention}
+\DeclareMathOperator\Attention{Attention}
+\DeclareMathOperator\FC{FC}
+\DeclareMathOperator\Feedforward{Feedforward}
+\DeclareMathOperator\Activation{Activation}
+\DeclareMathOperator\ReLU{ReLU}
+\DeclareMathOperator\softmax{softmax}
+\DeclareMathOperator\RNN{RNN}
+\DeclareMathOperator\RNNCell{RNNCell}
+\DeclareMathOperator\Encoder{Encoder}
+\DeclareMathOperator\Decoder{Decoder}
+\DeclareMathOperator\argmax{argmax}
+\DeclareMathOperator\simi{sim}
+\DeclareMathOperator\Concat{Concat}
+
+
+\DeclareMathOperator\E{E}
+\DeclareMathOperator\Var{Var}
+% Source, e.g. for images
+\setbeamercolor{framesource}{fg=gray}
+\setbeamerfont{framesource}{size=\tiny}
+
+\usepackage[absolute,overlay]{textpos}
+\newcommand{\source}[1]{\begin{textblock*}{\linewidth}(1ex,\paperheight-2.75em)
+  \begin{beamercolorbox}[left]{framesource}
+    \usebeamerfont{framesource}\usebeamercolor[fg]{framesource} Source: {#1}
+  \end{beamercolorbox}
+\end{textblock*}}
+
+\usepackage{etoolbox}
+%% short titles for toc \(sub)section[SHORTTITLE for toc]{LONGTITLE for slide}
+\makeatletter
+% Insert [short title] for \section in ToC
+\patchcmd{\beamer@section}{{#2}{\the\c@page}}{{#1}{\the\c@page}}{}{}
+% Insert [short title] for \section in Navigation
+\patchcmd{\beamer@section}{{\the\c@section}{\secname}}{{\the\c@section}{#1}}{}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% For Python code block
+%
+% taken from: https://tex.stackexchange.com/questions/83882/how-to-highlight-python-syntax-in-latex-listings-lstinputlistings-command
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{8} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{8}  % for normal
+
+% Custom colors
+\usepackage{color, colortbl}
+% \definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepblue}{RGB}{0, 0, 128}
+\definecolor{deepred}{rgb}{0.6,0,0}
+%\definecolor{deepgreen}{rgb}{0,0.5,0}
+\definecolor{deepgreen}{RGB}{0,128,0}
+
+\definecolor{maroon}{cmyk}{0, 0.87, 0.68, 0.32}
+\definecolor{halfgray}{gray}{0.55}
+\definecolor{ipython_frame}{RGB}{207, 207, 207}
+\definecolor{ipython_bg}{RGB}{247, 247, 247}
+\definecolor{ipython_red}{RGB}{186, 33, 33}
+\definecolor{ipython_green}{RGB}{0, 128, 0}
+\definecolor{ipython_cyan}{RGB}{64, 128, 128}
+\definecolor{ipython_purple}{RGB}{170, 34, 255}
+\definecolor{pycharm_self}{RGB}{148, 85, 141}
+\definecolor{pycharm_init}{RGB}{178, 0, 178}
+\definecolor{pycharm_deco}{RGB}{0, 0, 178}
+\definecolor{pycharm_number}{RGB}{0, 0, 255}
+\definecolor{pycharm_comment}{RGB}{128, 128, 128}
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+\definecolor{applegreen}{rgb}{0.55, 0.71, 0.0}
+\definecolor{cream}{rgb}{1.0, 0.99, 0.82}
+\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\footnotesize\ttm,
+backgroundcolor=\color{mygray},
+numbers=left,
+%commentstyle=\color{ipython_cyan}\ttm,
+commentstyle=\color{pycharm_comment}\ttm,
+otherkeywords={None, False, True, with},
+keywordstyle=\ttb\color{deepblue},
+emph={__init__},
+emphstyle=\color{pycharm_init},
+emph={[2]self},
+emphstyle=[2]\color{pycharm_self},
+emph={[3]super},
+emphstyle=[3]\color{pycharm_deco},
+alsoletter={1234567890},
+% emph={[4]1,2,3,4,5,6,7,8,9,0},
+% emphstyle=[4]\color{pycharm_number},
+% morekeywords=[3]{14, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+% keywordstyle=[3]{\color{pycharm_number}},
+stringstyle=\color{deepgreen},
+%frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% disable PDF navigation icons
+\setbeamertemplate{navigation symbols}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% irie: Arial font as recommended by USI.
+% but only work with xelatex!
+% comment these two lines out, if needed...
+%\usepackage{fontspec}
+%\setmainfont{Arial}
+
+% more shortcut
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\codeb}[1]{\colorbox{mygray}{\texttt{#1}}}
+\newcommand{\link}[1]{{\footnotesize \url{#1}}}
+\newcommand{\alertbf}[1]{\textbf{\alert{#1}}}
+\newcommand{\emphbf}[1]{\textcolor{myblue}{\textbf{#1}}}
+\newcommand{\citem}[1]{{\footnotesize \textcolor{myblue}{\cite{#1}}}}
+
+\newcommand{\vsp}{\vspace{2mm}}
+\newcommand{\TODO}{{\textcolor{red}{TODO }}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  For title page
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title[Deep Learning Lab 2022]{\LARGE Deep Learning Lab}
+\subtitle{}
+\author{Instructor: Kazuki Irie\\ TAs: R\'obert Csord\'as, Aditya Ramesh}
+\email{\scriptsize{\texttt{kazuki.irie@usi.ch}, \texttt{robert.csordas@idsia.ch}, \texttt{aditya.ramesh@idsia.ch}}} % optionally
+\institute{The Swiss AI Lab IDSIA, USI \& SUPSI}
+\date{First version: 19.09.2022, \alert{Last modified: \today/\currenttime} \\ 
+Fall 2022, USI.}
+% Fall semester 2020-2021, Universit\`a della Svizzera italiana}
+
+% Logos
+\logo{\vskip-2mm\includegraphics[width=20mm]{logos/usi-h-10mm}\hspace{-2mm}} % optionally
+\instlogo{\hspace{-3mm}\includegraphics[height=10mm]{logos/idsia-logo-with-text}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define section start style
+% `sectitle` for a page with just title.
+% `fulltoc`
+% `sectoc`
+\secstart{sectoc}
+
+\begin{document}
+\tableofcontents[]  % shows the outline.
+
+\input{sec0}
+
+\tableofcontents[]  % shows the outline.
+
+\input{sec1}
+
+% \tableofcontents[]  % shows the outline.
+\input{sec2}
+
+% \tableofcontents[]  % shows the outline.
+\input{sec31}
+
+\input{sec32}
+
+\input{sec33}
+
+\input{sec4}
+
+\input{sec5}
+
+\input{sec6}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{References}
+{\scriptsize
+\setbeamertemplate{bibliography item}[text]
+\bibliographystyle{i6bibstyle}
+\bibliography{slides}
+}
+\end{document}

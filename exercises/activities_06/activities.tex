@@ -1,0 +1,216 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=.8in]{geometry}
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=magenta
+}
+\usepackage{graphicx}
+
+
+\title{Exercise 6}
+\author{Deep Learning Lab}
+
+\begin{document}
+
+\maketitle
+
+\section{Language Modeling with RNNs}
+
+In this exercise, you will implement a character-level language model using recurrent neural networks (RNNs).
+As has been presented in the lecture (Sec.\,3.2), an RNN language model is trained
+to predict texts from left to right one token (in our case one character) at a time.
+While the primary role of a language model is to evaluate the ``correctness" of any sentence
+by computing its probability, such a model can be also used to \textit{generate} texts recurrently
+by generating one character at a time according to its output distribution
+and feeding it back as an input to generate the next character.
+% If you are interested in learning more about such an idea, an accessible introduction is
+% available \href{http://karpathy.github.io/2015/05/21/rnn-effectiveness/}{here}.
+% We also remind you that preliminaries, as well as, some helper code (uploaded on iCorsi)
+% has been presented in the lecture (see slides towards the end of Sec.\,3.2).
+
+\subsection{Text data}
+Many public domain books are available in text format from \href{http://www.gutenberg.org/}{Project Gutenberg}.
+Download ``Aesop's Fables (A Version for Young Readers)'' from \href{http://www.gutenberg.org/files/49010/49010-0.txt}{here}.
+For simplicity, we'll assume that no pre-processing is needed.
+\begin{enumerate}
+ \item Check important properties of the data: number of unique characters (vocabulary size),
+ number of running characters in the file, number of lines in the file, and any other interesting observations
+ about the structure of the text (e.g. usage of capitalized letters, contractions, paragraphs, line lengths, etc).
+
+% \item (Bonus, 2 pt) We repeat: no text preprocessing is needed for this task.
+% But if you were asked to do some text preprocessing, what would you do? (max.~2 sentences)
+\end{enumerate}
+
+\subsection{Batch construction}
+We consider a very long string representing the whole book (the text file you downloaded).
+Backpropagating gradients through an RNN which is enrolled as many time steps as there are characters
+in that long string (backpropagation through time; BPTT) will require too much memory.
+Instead, the string must be broken down into smaller text chunks.
+Chunking should be done such that the first token for the current chunk is the last token from the previous chunk.
+The first token of the chunk is the first input token to be fed to the language model,
+while the last token of the chunk is the last target token to be predicted by the model within a given chunk.
+We'll then train the model by \emph{truncated backpropagation through time}
+(which was also covered in the lecture, Sec.~3.2), i.e.:
+\begin{itemize}
+\item[-] We limit the span of backpropagation to be within one chunk. The length of the chunk is thus the BPTT span.
+\item[-] We initialize the hidden state of the RNN at the beginning of the chunk by the last state from the previous chunk.
+We thus can not randomly shuffle chunks, since the RNN states need to be carried between consecutive text chunks.
+\end{itemize}
+To improve efficiency, we train on a batch of text chunks such that multiple chunks are processed in parallel.
+\textbf{The implementation for reading a raw text file and creating a batch generator which is compatible with
+the description above his available on iCorsi.
+No coding is thus needed here.} Read the provided code.
+% Answer the following questions which test your reading comprehension of the provided code.
+% \begin{enumerate}
+% \item (2 pt) In the method \texttt{get\_idx} of class \texttt{Vocabulary}, explain why there is a \texttt{if} branch (max.~2 sentences).
+
+% \item (4 pt) In \texttt{Vocabulary}, you should be able to recognize two dictionaries \texttt{id\_to\_string} and \texttt{string\_to\_id}.
+% What are the keys and values for each of these dictionaries?
+
+% \item (1 pt) Regarding \texttt{LongTextData}, what statistic do you obtain when you call \texttt{\_\_len\_\_}? (max.~1 sentence/a few words)
+% \item (1 pt) Same question for \texttt{ChunkedTextData}: what statistic do you obtain when you call \texttt{\_\_len\_\_}? (max.~1 sentence/a few words)
+% \item (10 pt) In the method \texttt{create\_batch} of \texttt{DataBatches}, find the following two lines:\\
+%         \texttt{padded = input\_data.data.new\_full((segment\_len * bsz,), pad\_id)}\\
+%         \texttt{padded[:text\_len] = input\_data.data}\\
+% Explain what these two lines do. Hints: What is \texttt{input\_data.data}? What does \texttt{new\_full} do? Can you describe what kind of object the result of the first line \texttt{padded} is and how it looks like?
+% How does \texttt{padded} look like after the second line? (max.~6 sentences)
+% \item (3 pt) Another question on \texttt{create\_batch} of \texttt{ChunkedTextData}: in the loop at the end of the code, under the branch \texttt{if i == 0:}, what is the shape of:
+% \texttt{padded[i * bptt\_len:(i + 1) * bptt\_len]} in terms of input arguments \texttt{bsz} and \texttt{bptt\_len}? (max.~1 sentence)
+% \item (3 pt) Same question for
+% \texttt{padded[i * bptt\_len - 1:(i + 1) * bptt\_len]} in the \texttt{else} branch: what is its shape in terms of input arguments \texttt{bsz} and \texttt{bptt\_len}? (max.~1 sentence)
+% \end{enumerate}
+
+%\textbf{Implement} the corresponding dataloader.
+%For tokenization on the character level (with white spaces) and to implement the dataset, you should refer to the lecture Sec.\,3.2 (around pp.\,157-162).
+ 
+% In order to allow backpropagation for a batch of sequences, the text may first be broken down into a number of large blocks, which corresponds to the batch size. 
+% 
+% Each of these blocks may be broken down further into subsequences, such that batch $i$ contains the $i$-th subsequence of each block.
+% 
+% During training, batches must be presented in order, and the state corresponding to each block must be preserved across batches. \emph{Important}: In TensorFlow, this requires feeding the current state to \emph{initial\_state}, fetching \emph{final\_state}, and feeding it to \emph{initial\_state} in the next iteration.
+% 
+% The technique described above is called \emph{truncated backpropagation through time}.
+ 
+% \item Listing \ref{code:batches} partially illustrates the batch creation process. For simplicity, each resulting batch will be used to derive both inputs and targets, leaving no target for the last character of each subsequence.
+\subsection{Model and Training}
+%\item \textbf{Scoring sentences.} Evaluate the trained models ability to score sentences.
+\begin{enumerate}
+\item \textbf{Implement} an RNN language model with an
+\href{https://pytorch.org/docs/stable/generated/torch.nn.Embedding.html}{input embedding layer},
+multiple RNN layers using \href{https://pytorch.org/docs/stable/generated/torch.nn.RNN.html}{nn.RNN},
+and a final softmax classification layer to predict the next character.
+
+\item Our goal is to generate texts using the trained RNN language model.
+To be more specific, we will provide a \textit{prompt} (i.e.\,a segment/beginning of a text) to the language model,
+and let the model \textit{complete} the text (for a length that you specify).
+\textbf{Implement} a \textit{greedy decoding algorithm} for such a completion, i.e., at each step, take the
+character with the highest probability according to the model, and use it as the input to the model in the next step.
+% In this exercise, we propose to randomly \textit{sample} from the model's output distribution to choose
+% the next character.
+% \textbf{Implement} the corresponding algorithm.
+We recommend you to implement this \textbf{not} as a part of the \texttt{forward} function of the model,
+but as a separate function which calls the \texttt{forward} function.
+Remember: hints were presented in the lecture/helper code.
+
+% \textbf{Implement} a greedy decoding algorithm for such a completion, i.e. at each step, take the
+% character with the highest probability according to the model, and use it as the input to the model in the next step.
+% We recommend you to implement this not as a part of the \texttt{forward} function of the model,
+% but as a function which calls the \texttt{forward} function.
+% Remember: hints were presented in the lecture/helper code.
+
+% \item To the implementation above, add an option to allow sampling during decoding; i.e. instead of taking
+% the argmax according to the model's output distribution, you sample randomly from that distribution.
+% Again, hints were presented in the lecture/helper code.
+
+\item \textbf{Implement} the code for training. As has been described above,
+the hidden states of the recurrent layers must be passed from one batch to the next, while
+not allowing the error signal to propagate across batches during training.
+For that you can apply \texttt{detach} function to the hidden state tensors.
+Make sure that your code allows you to monitor the following measures for every $n$ training steps
+(with a reasonable choice of $n$):
+\begin{itemize}
+\item The \textit{perplexity} of your model on the training data (on the batch level).
+\item The model's text generation ability, by decoding always from the same prompt of your choice
+(e.g.\,``Dogs like best to" or the beginning of a story in the training set).
+\end{itemize}
+The perplexity of a language model $p$ for a text $w_1^N$ (with a start token $w_0$) is defined as:
+\[
+\text{Perplexity} = (\prod_{n=1}^{N}p(w_{n} | w_{0}^{n-1}))^{-\dfrac{1}{N}} = \exp(\displaystyle -\dfrac{1}{N}\sum_{n=1}^{N}\log p(w_{n} | w_{0}^{n-1})).
+\]
+From this equation, you should recognize that the perplexity can be directly computed by
+simply applying the exponential to the cross-entropy loss in PyTorch with the default parameters.
+
+\item Train an RNN language model. We recommend the following hyper-parameters:
+\begin{itemize}
+\item an input embedding layer with a dimension of 64
+\item one RNN layer with a dimension of 2048
+\item a BPTT span of 64 characters
+\item the Adam optimizer with a learning rate of $5e^{-4}$.
+\item with a gradient clipping with a clipping threshold of $1.0$.
+This can be done by adding the following line between the gradient computation (typically \texttt{loss.backward()})
+and the parameter update (typically \texttt{optimizer.step()}):\\
+\texttt{torch.nn.utils.clip\_grad\_norm\_(model.parameters(), 1.0)} assuming that you defined your PyTorch model as \texttt{model}.
+\end{itemize}
+We do not make use of any validation data: you can consider this model to be well trained when its training perplexity is below 1.8.
+You should be able to achieve this performance within less than 10 minutes using a GPU.
+% Make sure to use BPTT span of at least 50 characters.
+% We recommend using a wide LSTM layer (e.g. 1024 nodes).
+Report the evolution of both perplexity and text generation quality.
+% \item Compare probabilities of several sentences.
+% Note that any sentence needs to end with an artificial end-of-setence token.
+% For example, try some sentences from the training text,
+% or write some well structured English sentences.
+% Try also some ``broken'' English sentences.
+% TODO assignment?
+% \item Report what you observe by trying two other values for learning rate and BPTT span independently (i.e. four more training runs in total).
+% \item Once your model is trained, run greedy decoding using the following prompts:
+% \begin{enumerate}
+% \item A title of a fable which exists in the book.
+% \item A title which you invent, which is not in the book, but similar in the style.
+% \item Some texts in a similar style.
+% \item Anything you think might be interesting.
+% \end{enumerate}
+% Report the output you obtain for each case. Provide a concise global comment (max 4 sentences. discussing e.g.~Is the output meaningful? Is the model capable to produce novel texts?...)
+
+% TODO assignment?
+% \item Using the trained model, run decoding with sampling using prompts (a) and (b)
+% 	from the previous question. Provide a concise global comment (max 2 sentences).
+
+%\item Judge the quality of the generated text. Is the output meaningful (correct English)?
+%Is the format (e.g. capitalization) consistent with the original text?
+%Is the model capable to produce novel texts?
+
+% \item {\bf (Bonus, 5 pt):} Be creative! Use other types of texts (e.g. the Python code from your last assignment),
+% and re-run the experiments above. Comment.
+\end{enumerate}
+
+
+% \section{Questions [6/100 points]}
+% Provide a \textbf{brief} answer to the following questions \textbf{in your own words} and add them to your report.
+% You can find more information in the relevant subsections of \href{https://www.deeplearningbook.org/}{e.g. chapter 10 of the Deep Learning Book}.  
+% \begin{enumerate}
+% \item (1 pt) What is the perplexity of a language model that always predicts each character with equal probability of 1/$V$ where $V$ is the vocabulary size? (max.~one word)
+% \item (2 pt) In this assignment, we looked at the next-word prediction in text as a sequence prediction problem. Give two other examples of sequence prediction problems that are not based on text. (max.~2 sentences)
+% \item (3 pt) What is the vanishing/exploding gradient problem? And why does this affect the models ability to learn long-term dependencies?
+% (max.~4 sentences)
+% 
+% \end{enumerate}
+% 
+% \section*{Submission}
+% You should deliver the following by the deadline stipulated on iCorsi3:
+% \begin{itemize}
+%  \item \textbf{Report}: a single \emph{pdf} file that clearly and concisely provides evidence that you have accomplished each of the tasks listed above. The report should not contain source code (not even snippets). Instead, if absolutely necessary, briefly mention which functions were used to accomplish a task.
+%  \item \textbf{Source code}: a single Python script that could be easily adapted to accomplish each of the tasks listed above.  The source code will be read superficially and checked for plagiarism.
+% % Unless this reveals that your code is suspicious, your grade will be based entirely on the report.
+% Therefore, if a task is accomplished but not documented in the report, it will be considered missing. Note: Jupyter notebook files are not acceptable.
+% \end{itemize}
+% \textbf{Please carefully read the instructions above to prepare your submission.
+% Failure to stick to these rules may result in reduction of points.}
+\end{document}

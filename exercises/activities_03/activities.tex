@@ -1,0 +1,139 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=.8in]{geometry}
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=magenta
+}
+
+%opening
+\title{Exercise 3 - \textbf{Assignment 1}}
+\author{Deep Learning Lab\\
+Due: Sunday 23 October 2022, 10:00 pm (time in Lugano)}
+
+\begin{document}
+
+\maketitle
+
+\section*{Submission Instruction}
+You should deliver the following by the deadline:
+\begin{itemize}
+ \item \textbf{Report}: a single \emph{pdf} file that clearly and concisely provides evidence that you have accomplished each of the tasks listed below. The report should not contain source code (not even snippets). Instead, if absolutely necessary, briefly mention which functions were used to accomplish a task. All figures should have a caption, and there should be a text that refers to it (see the Latex documentation if you are not familiar with this). Please also make sure that the section numbering in your report exactly follows that of the assignment.
+ \item \textbf{Source code}: a single Python script that can be used to accomplish each of the tasks listed above.  The source code will be read superficially and checked for plagiarism.
+% Unless this reveals that your code is suspicious, your grade will be based entirely on the report
+ Importantly, if a task is accomplished in the code, but not documented in the report, it will be considered missing. Therefore, please make sure to report everything in the report. Note: Jupyter notebook files are not accepted.
+\end{itemize}
+\textbf{Please carefully read the instructions above to prepare your submission.
+Failure to stick to these rules may result in reduction of points.}
+\textbf{As stressed in class, it is strictly forbidden to exchange your code with others or copy texts/code from the internet. The score of 0 will be given to all students involved in such cases.}
+
+Note for those who have started working on the \textbf{`preview' version}: we introduced a slight change. We added the 0-th order coefficient to $\mathbf{w} = [\textbf{0}, -5, 2, 1, 0.05]$ and modified the definition of $\mathbf{x}$ accordingly. The solution based on the `preview version' will also be accepted without any penalty, but if you have not started solving the problem yet, please use this updated version.
+
+\section{Polynominal Regression [96/100 points]}
+Let $z \in \mathbb{R}$. Consider the polynomial $p$ given by 
+\begin{equation*}
+    p(z) = 0.05z^4 + z^3 + 2z^2 -5z = \sum_{i = 0}^4 \mathbf{w}_i z^{i},
+\end{equation*}
+where $\mathbf{w} = [w_0, w_1, w_2, w_3, w_4]^\intercal = [0, -5, 2, 1, 0.05]^\intercal \in \mathbb{R}^5$. This polynomial can also be expressed as a \textit{dot-product} between two vectors: $p(z) = \mathbf{w}^\intercal \mathbf{x}$ by defining $\mathbf{x} = [1, z, z^2, z^3, z^4]^\intercal \in \mathbb{R}^5$.
+
+Consider also an i.i.d. dataset $\mathcal{D} = \{ (z_i, y_i) \}_{i=1}^N$,
+where $y_i = p(z_i) + \epsilon_i$, and each $\epsilon_i$ is drawn from
+a normal distribution with mean zero and standard deviation $\sigma = 0.5$.
+
+Now if we assume that the vector $\mathbf{w}$ is unknown,
+\textbf{linear regression} (see slides Sec.\,2.1) could estimate it given the dataset $\mathcal{D}$ by using the dot-product form above and by representing the original dataset $\mathcal{D}$ as
+$\mathcal{D}' = \{ (\mathbf{x}_i, y_i) \}_{i=1}^N$, where $\mathbf{x}_i = [1, z_i, z_i^2, z_i^3, z_i^4]^\intercal \in \mathbb{R}^5$. 
+
+\begin{enumerate}
+\item (4 pts) \textbf{Use} the following helper code below to visualize the polynomial above (you have to report a figure). \textit{Do not forget the 0-th degree coefficient in the argument `coeffs.'}
+ \begin{lstlisting}[language=Python, frame=tb, caption=Helper function to visualize a polynomial.]
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_polynomial(coeffs, z_range, color='b'):
+    # coeffs: tuple or list containing coefficients of
+    #   a polynomial in the increasing order of degrees
+    # z_range: tuple or list of two elements 
+    #   representing the range of z (min, max)
+    z = np.linspace(z_range[0], z_range[1], 100)
+    y = np.polynomial.polynomial.polyval(z, coeffs)
+    plt.plot(z, y, color)
+\end{lstlisting}
+\item (10 pts) \textbf{Complete} the code below that allows you to generate the data $\mathcal{D}'$ described above.
+ \begin{lstlisting}[language=Python, frame=tb, caption=Polynomial regression dataset generation (incomplete).]
+
+def create_dataset(w, z_range, sample_size, sigma, seed=42):
+    """Incomplete documentation."""
+    random_state = np.random.RandomState(seed)
+    z = random_state.uniform(z_range[0], z_range[1], (sample_size))
+    x = np.zeros((sample_size, w.shape[0]))
+    for i in range(sample_size):
+        # for j in range ... TODO complete
+        #    x[i, j] = ...  TODO complete
+    y = x.dot(w)
+    if sigma > 0:
+        y += random_state.normal(0.0, sigma, sample_size)
+    return x, y
+ \end{lstlisting}
+
+
+\item (10 pts) Use the completed code and the following parameters to generate training and validation data points:
+\begin{itemize}
+\item Each $z_i$ should be in the interval $[-3, 3]$.
+\item $\mathbf{w} = [0, -5, 2, 1, 0.05]^\intercal$.
+\item Use $\sigma = 0.5$.
+\item Use a sample of size $500$ created with a seed of $0$ for training.
+\item Use sample of size $500$ created with a seed of $1$ for validation.
+\end{itemize}
+\item (6 pts) Visualize the generated training data points (i.e., the `($z$, $y$)' pairs) in a 2D scatterplot. Do the same for the validation set (report two separate figures).
+% new 2021
+\item (4 pts) Search for the documentation of \texttt{torch.nn.Linear}.
+Notice the flag \texttt{bias}. Explain what that flag does using equations. 
+Should that flag set to \texttt{True} or \texttt{False} for this problem? Explain.
+ \item (20 pts) Adapt the code of linear regression in the 1D case presented in the lecture (at the end of Sec.\,2.1) to perform polynomial regression
+using the generated training dataset $\mathcal{D}'$.
+ \item (20 pts) Find and report a suitable \textbf{learning rate} and \textbf{number of iterations} for gradient descent. Report the \textbf{initial (random) values} and the \textbf{estimate} of $\mathbf{w}$ you obtained after training. You can consider your hyper-parameters to be good if your training and validation losses are below $0.6$. \textit{Hint: when your learning rate is too high, you may get `nan'. If it is too low, you may need more than 2000 steps to achieve $0.6$.}
+  \item (10 pts) Plot the training and validation losses as a function of the gradient descent iterations.
+ \item (2 pts) Visualize the polynomial defined by the estimate of $\mathbf{w}$ you obtained above, and comment.
+\item (10 pts) Report and explain what happens when the training dataset is reduced to $10$ observations while keeping the number of validation data points \textbf{unchanged}. (you can use the hyper-parameters you found above; no need to tune them again).
+%Illustrate your observations with some plots of your choice.
+% \item (10 pts) Report and explain what happens when $\sigma$ is increased to $2$, $4$, and $8$.
+%Illustrate your observations with some plots of your choice.
+% \item (10 pts, extra) {\bf Bonus}: Reduce your training dataset to $10$ observations (keep the validation data size unchanged), and compare fitting a polynomial of degree three (as before) with fitting a polynomial of degree four (which does not match the underlying polynomial $p$). Plot the resulting polynomials and document the validation loss. What do you observe?
+\item (\textbf{Bonus}, 10 pts) Plot the evolution of each coefficient of $\mathbf{w}$ as a function of the gradient descent iterations.
+\end{enumerate}
+
+
+\section{Questions [4/100 points]}
+Provide a \textbf{brief and concise} answer (\textbf{max.\,3 sentences}) to the following questions \textbf{in your own words} and add them to your report. You can find more information in the relevant subsections of \href{https://www.deeplearningbook.org/}{chapter 5,8 of the Deep Learning Book} for example.  
+\begin{enumerate}
+%\item (2 pts) What is the difference between a local and a global minimum?
+\item (2 pts) What does it mean if your model is overfitting?
+\item (2 pts) How can you mitigate overfitting? (one example solution is enough)
+% \item What is the difference between interpolation and extrapolation?
+\end{enumerate}
+\textbf{NB: We are expecting concise answers.
+Long answers including reformulations (``in other words...") or long examples
+will not be graded.}
+
+%\section*{Submission}
+%You should deliver the following by the deadline stipulated on iCorsi3:
+%\begin{itemize}
+% \item \textbf{Report}: a single \emph{pdf} file that clearly and concisely provides evidence that you have accomplished each of the tasks listed above. The report should not contain source code (not even snippets). Instead, if absolutely necessary, briefly mention which functions were used to accomplish a task.
+% \item \textbf{Source code}: a single Python script that can be used to accomplish each of the tasks listed above.  The source code will be read superficially and checked for plagiarism.
+%% Unless this reveals that your code is suspicious, your grade will be based entirely on the report
+% Importantly, if a task is accomplished in the code, but not documented in the report, it will be considered missing. \textbf{Please make sure to report everything in the report.} Note: Jupyter notebook files are not accepted.
+%\end{itemize}
+%\textbf{Please carefully read the instructions above to prepare your submission.
+%Failure to stick to these rules may result in reduction of points.}
+%
+%\textbf{As stressed in class, it is strictly forbidden to exchange your code with others or copy texts/code from the internet. The score of 0 will be given to all students involved in such cases.}
+
+\end{document}

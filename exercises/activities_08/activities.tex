@@ -1,0 +1,228 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=.8in]{geometry}
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=magenta
+}
+\usepackage{graphicx}
+
+
+\title{Exercise 8 - \textbf{Assignment 4}\\
+ \textbf{Mathematical Problem Solving with Transformers}}
+\author{Deep Learning Lab\\
+Due: Sunday 15 January 2022, 10:00 pm (time in Lugano)\\
+}
+
+\begin{document}
+
+\maketitle
+
+\section*{Submission Instruction}
+You should deliver the following by the deadline:
+\begin{itemize}
+ \item \textbf{Report}: a single \emph{pdf} file that clearly and concisely provides evidence that you have accomplished each of the tasks listed below. The report should not contain source code (not even snippets). Instead, if absolutely necessary, briefly mention which functions were used to accomplish a task. All figures should have a caption, and there should be a text that refers to it (see the Latex documentation if you are not familiar with this). Please also make sure that the section numbering in your report exactly follows that of the assignment.
+ \item \textbf{Source code}: a single Python file (\emph{.py}) that can be used to accomplish each of the tasks listed above.  The source code will be read superficially and checked for plagiarism.
+% Unless this reveals that your code is suspicious, your grade will be based entirely on the report
+ Importantly, if a task is accomplished in the code, but not documented in the report, it will be considered missing. Therefore, please make sure to report everything in the report. Note: Jupyter/Colab notebook files (\emph{.ipynb}) are not accepted.
+\end{itemize}
+
+\textbf{Please carefully read the instructions above to prepare your submission. Failure to stick to these rules may result in reduction of points.}
+\textbf{As stressed in class, it is strictly forbidden to exchange your code with others or copy texts/code from the internet. The score of 0 will be given to all students involved in such cases.}\\
+
+\textbf{NB: You should use a GPU for this assignment.}\\
+
+% \begin{center}
+% {\LARGE \textbf{Mathematical Problem Solving with Transformers}}
+% \end{center}
+
+% \section*{Mathematical Problem Solving with Transformer Models}
+
+In Sec.\,4 of the lecture slides, encoder-decoder models have been
+presented as models for solving sequence-to-sequence problems.
+In particular, the PyTorch implementation of Transformer models has been commented.
+In this assignment, you will train such a model to solve mathematical problems.
+%You will be using subsets of the DeepMind mathematical dataset\footnote{\url{https://github.com/deepmind/mathematics_dataset}}.
+The following sections will guide you to implement each component of the system step by step.
+While you should try to solve the following tasks (more or less) in the given order, \textbf{we recommend you to read the entire text before you start solving the problem}, so that you can get an overview of the problem you will be solving as well as the deliverable you are asked to
+provide in your report.
+Remember, \textbf{a helper code notebook is available on iCorsi}.
+
+\section{Problem Setups and Preliminaries}
+We are interested in solving basic mathematical problems using neural networks.
+The problems we consider are subsets of the DeepMind mathematical dataset\footnote{\url{https://github.com/deepmind/mathematics_dataset}}.
+Each example consists of a question and the answer.
+The dataset contains different \textit{modules}, corresponding to different
+problem categories. Here are a few examples:
+\begin{itemize}
+\item Module: \textit{numbers - place value}\\
+Question: ``What is the hundred millions digit of 217883211?''\\
+Answer: ``2''
+%\item Module: \textit{calculus - differentiate}\\
+%Question: ``Find the second derivative of -5*k**5 - 15*k**4 + 103*k.''\\      
+%Answer: ``-100*k**3 - 180*k**2''
+\item Module: \textit{comparison - sort}\\
+Question: ``Put -4, 2/5, 0, 1, 132 in decreasing order.''\\
+Answer: ``132, 1, 2/5, 0, -4''
+\end{itemize}
+
+In this assignment, we treat this problem as a character-level sequence-to-sequence mapping problem:
+the encoder reads the question as the input sequence, and the decoder outputs the
+answer sequence.
+You will train separate models for a few selected modules of the mathematics dataset.
+
+\textbf{Download} the pre-processed dataset from iCorsi3.
+Note that each of the modules consists of the following files:
+\texttt{train.x} containing the question part of
+the training data, and \texttt{train.y} corresponding to the answer. 
+Analogously, you should find the \textbf{validation} set with the prefix \texttt{interpolate}.
+We do not consider any test set in this assignment.
+Unless otherwise indicated, \textbf{use the \textit{numbers - place value} module} to answer to
+all following questions.
+% \item Remove 1000 last examples from the training set to construct a validation set. You
+% can give e.g. the prefix \texttt{valid}.
+
+\begin{enumerate}
+\item (8 pt) Report the number of sentences and characters in the training and validation sets. Also report average question and answer lengths in terms of number of characters for each set (No need to provide the code you used for this question).
+%\item In the next section, we will construct a vocabulary including all characters in the training set, including the white space,
+%and special tokens (start/end of sentence, padding token). What is the vocabulary size for the module \textit{numbers - place value}?
+%The same vocabulary will be used for both the encoder and decoder.
+\end{enumerate}
+
+\section{Dataloader}
+The implementation of dataset and dataloader you need for this task
+was presented in the lecture and it can be downloaded from iCorsi.
+No coding is thus needed here.
+We also note here that loading the data might take some time (e.g., more than 5 min).
+Answer the following questions about the corresponding code.
+
+\begin{enumerate}
+\item (1 pt) The provided implementation automatically produces the vocabulary to be used by the model while reading the dataset.
+Does the implementation use the same vocabulary for the input (source) and output (target) of the model by default? (max.~1 sentence)
+\item (1 pt) Recognize that the vocabulary contains the so-called unknown token, \texttt{unk}. By reading the implementation of \texttt{Vocabulary}, find out and explain its role (max.~1 sentence).
+\end{enumerate}
+
+
+%\subsection{Dataloader}
+%In this section, you will implement the dataloader class using \texttt{Field}, \texttt{Iterator} and \texttt{TranslationDataset} from \texttt{torchtext}.
+%The principle of tokenization is similar to what has been seen in assignment 3 for language modeling (see the end of Sec.\,3.2 for reminder).
+%\begin{enumerate}
+%\item Using a character level tokenizer (e.g. \texttt{lambda x:\,list(x)}), implement a dataloader class
+%for this problem.
+%\item \textit{Suggestion:} Check your implementation (check padding, separators, vocabulary size, etc) before moving on.
+%\end{enumerate}
+
+\section{Model}
+
+The helper code already contains a working implementation of a Transformer encoder-decoder model.
+You should be able to recognize various components of the Transformer model we studied in class.
+Note also that in addition to the usual \texttt{\_\_init\_\_} and \texttt{forward} methods, it implements separate class methods to generate different masks (remember the hints presented in the lecture). 
+
+\begin{enumerate}
+\item (5 pt) Check how \texttt{self.transformer} of the class \texttt{TransformerModel} is used in its \texttt{forward} function:
+\texttt{out = self.transformer(...)}.
+Notice also how \texttt{self.encoder} and \texttt{self.decoder} are defined in the \texttt{\_\_init\_\_} function.
+In fact, instead of forwarding \texttt{self.transformer} as is done in the current code, one could forward \texttt{self.encoder} and \texttt{self.decoder} separately. \textbf{Implement} a function \texttt{forward\_separate} that implements this second option that makes use of \texttt{self.encoder} and \texttt{self.decoder} instead of \texttt{self.transformer} in the forward computation of the model.
+\textit{Hint: you can start by copying the provided  \texttt{forward} function, and replace the line corresponding to forwarding of \texttt{self.transformer} by lines containing forwarding of \texttt{self.encoder} and \texttt{self.decoder}.
+The purpose of implementing this function is to help you understand how one can separately make use of encoder and decoder components on the Transformer. For the rest of the problem, you can simply use the originally provided \texttt{forward} function.}
+\end{enumerate}
+
+\section{Greedy search}
+Your task here is to implement the greedy search algorithm for your Transformer model
+by following the hints and by answering the questions below.
+Your implementation should allow to process multiple sequences in a batch in parallel.
+\begin{enumerate}
+%\item Note that you can forward separately your encoder and decoder inside \texttt{nn.Transformer}. Check
+%the corresponding \texttt{forward} method.
+\item (15 pt) \textit{Hint for implementing the main part of the algorithm}: as is pointed out in the previous section, you can forward separately your encoder and decoder which are sub-modules of \texttt{nn.Transformer}.
+In a search algorithm, the encoder needs to be forwarded only once for each batch, while the decoder
+needs multiple forwarding: at each decoding step, the model prediction must be extracted,
+concatenated to the current decoder input sequence, and fed as the new input to the model in the next decoding step.
+Thus, something in the form:
+\texttt{dec\_input = torch.cat([dec\_input, predicted])} along the correct axis, is needed.
+Also, you should actively make use of already implemented helper functions for creating masks:
+\texttt{create\_src\_padding\_mask} and \texttt{create\_tgt\_padding\_mask}.
+
+\item (\textit{Bonus}, 5 pt): Criticize concisely the implementation of \texttt{nn.Transformer} when considering
+its usage in a search algorithm.
+\item (5 pt) \textit{Stopping criteria}: You need to specify the stopping criteria for your search algorithm.
+You should use the following two criteria.
+The first stopping criterion is when the model outputs
+the end-of-sentence token, \texttt{eos}.
+Second, as you will see in the next section, an output of your model will be counted as a correct answer,
+only if all tokens match the true answer sequence.
+Thus, to make it simple, you can also stop decoding when the length of the output sequence exceeds that
+of the target sequence (note: you should otherwise never use any information from the evaluation target sequence!).
+\item (5 pt) \textit{Batch mode evaluation}: For fast evaluation, you have to carry out search in batch mode.
+You can terminate the search, once the stopping criteria are met for all sequences in the batch.
+%\item Finally, the output of the greedy search will be evaluated; you might want to change the exact output
+%format, depending on your evaluation function of the next section.
+\end{enumerate}
+
+\section{Accuracy computation}
+\begin{enumerate}
+\item (5 pt) Implement a function which computes the accuracy (the number of correct answers divided by the total number of questions);
+a model prediction is counted as correct, only when the entire output sequence
+(all characters) matches that of the correct answer.
+You might want to modify the output format of the greedy algorithm from the previous section,
+depending on what's the most convenient for your evaluation function.
+\end{enumerate}
+
+\section{Training}
+Finally, you implement the training pipeline.
+\begin{enumerate}
+\item (2 pt) Which loss function do you use? Why? (1 sentence)
+\item (15 pt) Implement the training code.
+Remember that the \textit{decoder} component of the model is similar to language models;
+you should carefully define the input tensor to be fed to the decoder and the target label tensors to be given to the loss. 
+During training, you have to keep track of both training and validation losses, as well as
+accuracy on the validation and training data subsets, every $n$ training steps (with a reasonable choice of $n$).
+It might also be helpful for you to print some model prediction example every $n$ steps.
+\item (5 pt) \textit{Gradient accumulation}. It is often helpful to use a large batch size to train Transformers.
+In order to simulate a large batch size, while working with limited GPU memory,
+you can accumulate gradients for a couple of steps i.e. update parameters (by calling \texttt{optimizer.step()})
+only every $k$ steps (e.g. assuming the batch size is 64, if you only update every 10 batches, your effective batch size is 640).
+Be careful where you call \texttt{optimizer.zero\_grad()}.
+\end{enumerate}
+
+\section{Experiments}
+\label{sec:exp}
+\begin{enumerate}
+\item (5 pt) \label{item:hyper} Using the training pipeline you implemented in the previous section, train a model for
+the module \textbf{numbers - place value} using the following hyper-parameters:
+\begin{itemize}
+\item Effective batch size of about 640 (for example by setting the batch size to be 64 and by accummulating gradients for 10 steps).
+\item Learning rate of 1e-4 with the Adam optimizer.
+\item Gradient clipping rate of 0.1 (i.e. \texttt{torch.nn.utils.clip\_grad\_norm\_(model.parameters(), 0.1)} has to be called before updating the parameters.)
+\item Model with 3 encoder layers, 2 decoder layers, hidden dimension of 256, feed-forward dimension of 1024, using 8 attention heads.
+%\item Model with 6 encoder layers, 2 decoder layers, hidden dimension of 512,
+%feed-forward dimension of 2048, using 8 heads.
+\end{itemize}
+You should be able to see the training loss going down quickly.
+As a rough reference, the validation accuracy should reach over 90\% after 5 min when training on a GPU
+(and 100\% after 10 min).
+\item (15 pt) \label{item:standard} Report/Plot your training curves (train/validation loss/accuracy) at least until you reach 90\% validation accuracy.
+Print, check, and report 3 example questions from the validation set and the predictions of your trained model.
+\item (8 pt) \textit{Hyper-parameter tuning}: Can you reduce the model size e.g. number of layers, hidden layer size,..., without obtaining degradation
+in terms of accuracy? Try at least two more hyper-parameter configurations and
+report the corresponding hyper-parameters and training curves.
+\item (5 pt) Run experiments on the module \textbf{compare - sort}.
+Try to achieve above 90\% accuracy on the validation set.
+Report the results similarly to question \ref{sec:exp}.\ref{item:standard} above.
+As a rough reference, using the hyper-parameters from \ref{sec:exp}.\ref{item:hyper} above, this should be possible after about 3 hours of training.
+By training for longer, you should be able achieve over 95\% accuracy.
+You can also report intermediate performance, if the performance is reasonably good.
+Is the task harder? How does the task fundamentally differ from \textbf{numbers - place value}?
+\item (\textit{Bonus}, 5 pt): Run experiments on \textbf{algebra - linear 1d} module, report results and comment.
+We note that this module is harder: it will require more time for models to achieve good performance,
+you can also report intermediate performance, if the performance is reasonably good.
+\end{enumerate}
+
+\end{document}
+

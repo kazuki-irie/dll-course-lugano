@@ -1,0 +1,110 @@
+\section{Final words and Outlook}
+
+ \begin{frame}{Summary}
+What have we learned?
+ \end{frame}
+
+ \begin{frame}{Looking back}
+In assignments and exercises, you have implemented:
+\vsp
+ \begin{itemize}
+ \item Image classification with convolutional neural networks.
+\vsp
+ \item Language modeling with RNNs.
+\item[-] as an example of sequence processing/generation problems.
+\vsp
+ \item Mathematical problem solving with Transformers
+\item[-] as an example of sequence to sequence problems.
+ \end{itemize}
+\vsp
+These are real hands-on experiences.
+ \end{frame}
+
+ \begin{frame}{Looking back (cont'd)}
+ \textbf{You put hands on practical problems and acquired experience:}
+ \begin{itemize}
+ \item PyTorch
+ \item Sense of system components: data, model, loss, optimization...
+ \item Hyper-parameter tuning: Number of layers, hidden layer size...
+ \item Training batch construction: batch size, padding, ...
+ \item ...
+ \end{itemize}
+\pause
+\vsp
+\textbf{Building blocks you learned are used in many popular/real/commercial applications}, e.g.:
+ \begin{itemize}
+\item Machine translation
+\item OpenAI's GPT-3 language model.
+\item ...
+ \end{itemize}
+ \end{frame}
+
+\begin{frame}{More topics...}
+\begin{itemize}
+	\item We can not cover all interesting works/models!
+	\item This final chapter: small catalog so that you get some keywords!
+	\item The rest is up to your own curiosity and interests.
+    \item Search and read more about what you are interested in!
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Reinforcement learning}
+	A big chapter uncovered in this lecture.\\
+ \begin{itemize}
+\item Particularly impressive performance for game playing:
+\item AlphaGo \citem{silver2016mastering}, StarCraft II \citem{vinyals2019grandmaster},...
+\item Robotics: object manipulation \citem{andrychowicz2020learning}...
+\item Also many practical aspects...
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Generative models}
+Another big chapter not covered in this lecture.
+\begin{itemize}
+\item Only a model for generating texts has been presented (assignment 3)
+\item Models which \textit{generate} something: image, text, speech, music, ..
+\end{itemize}
+\vsp
+You can search for:
+\begin{itemize}
+\item Generative adversarial networks (GAN) \citem{NIPS2014_5423}
+\item Variational auto-encoders (VAE) \citem{KingmaW13}
+\item Flow based models \citem{DinhKB14, RezendeM15}
+\item Auto-regressive models, such as PixelRNN \citem{OordKK16}, WaveNet \citem{oord2016wavenet}, ...
+% \item Score matching generative models \citem{NIPS2019_9361}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Self-supervised learning}
+	\begin{itemize}
+        \item Subset of unsupervised learning. Recently became very popular.
+        \item Example: take some data, mask parts of it, and ask the model to predict the hidden parts given the rest.
+		\item Originally proposed for texts, natural language processing. 
+		\item Models are often based on Transformers.
+		\item Key models: BERT \citem{devlin2019bert} and its variants.
+\item Also the standard language models fall into this category.
+        \item Now also applied beyond NLP.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Final words}
+\begin{itemize} 
+\item You should have the basics to tackle many problems.
+\item If there is any topic/idea which interests you, search and read papers, and implement it!
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Acknowledgements, Resources \& References}
+Contents of this slides are partially adapted from:
+\vsp
+\begin{itemize}
+\item Paulo Rauber's materials for the DLL (2018, 2019). \link{http://paulorauber.com/slides/deep_learning_lab.pdf}
+\item Princeton, NLP class PyTorch.
+\item Stefan Otte's tutorial ``Practical PyTorch" (2017):
+\link{https://github.com/sotte/pytorch_tutorial}
+\item David V\"olgyes's lecture (2020):
+\link{https://www.uio.no/studier/emner/matnat/ifi/IN5400/v20/material/lectureslides/in5400_week4_2020_pytorch_lecture4.pdf}
+\item Lecture note from Fei-Fei Li's team (Stanford):
+\link{http://cs231n.stanford.edu/slides/2019/}
+\end{itemize}
+\end{frame}

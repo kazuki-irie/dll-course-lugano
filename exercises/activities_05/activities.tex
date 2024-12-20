@@ -1,0 +1,149 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=.8in]{geometry}
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=magenta
+}
+\usepackage{graphicx}
+
+
+\title{Exercise 5 - \textbf{Assignment 2}}
+\author{Deep Learning Lab\\
+Due: Sunday 13 November 2022, 10:00 pm (time in Lugano)
+\\ (Note: this is one week later than the originally announced two-week deadline)
+}
+
+\begin{document}
+
+\maketitle
+
+\section*{Submission Instruction}
+You should deliver the following by the deadline:
+\begin{itemize}
+ \item \textbf{Report}: a single \emph{pdf} file that clearly and concisely provides evidence that you have accomplished each of the tasks listed below. The report should not contain source code (not even snippets). Instead, if absolutely necessary, briefly mention which functions were used to accomplish a task. All figures should have a caption, and there should be a text that refers to it (see the Latex documentation if you are not familiar with this). Please also make sure that the section numbering in your report exactly follows that of the assignment.
+ \item \textbf{Source code}: a single Python file (\emph{.py}) that can be used to accomplish each of the tasks listed above.  The source code will be read superficially and checked for plagiarism.
+% Unless this reveals that your code is suspicious, your grade will be based entirely on the report
+ Importantly, if a task is accomplished in the code, but not documented in the report, it will be considered missing. Therefore, please make sure to report everything in the report. Note: Jupyter/Colab notebook files (\emph{.ipynb}) are not accepted.
+\end{itemize}
+\textbf{Please carefully read the instructions above to prepare your submission.
+Failure to stick to these rules may result in reduction of points.}
+\textbf{As stressed in class, it is strictly forbidden to exchange your code with others or copy texts/code from the internet. The score of 0 will be given to all students involved in such cases.}\\
+
+\textbf{NB: You should use a GPU for this assignment.}
+
+\section{Image Classification Using ConvNets [90/100 points]}
+
+The \href{https://www.cs.toronto.edu/~kriz/cifar.html}{CIFAR-10} dataset contains $50,000$ training images and $10,000$ test images.
+Each image is of size 32$\times$32 with three channels for red, green, and blue. Each image belongs to one of ten classes:
+plane, car, bird, cat, deer, dog, frog, horse, ship, or truck.
+Your task is to implement a convolutional neural network to correctly classify the images.
+
+\subsection{Dataset}
+Like the MNIST dataset we used in Exercise 4, the CIFAR-10 dataset is already available in PyTorch via \texttt{torchvision.datasets.CIFAR10}. The corresponding API documentation can be found \href{https://pytorch.org/vision/stable/generated/torchvision.datasets.CIFAR10.html}{here}.
+\begin{enumerate}
+\item (4 pt) Load the corresponding dataset. Check the number of images.
+You can plot images using \texttt{matplotlib.pyplot.imshow}. \textbf{Visualize} (at least) four images from the training set.
+Be careful with the shape expected by \texttt{imshow}: the color channel needs to be the last dimension.
+
+\item (10 pt) While \texttt{torchvision.datasets.CIFAR10} provides images with values taking between $0$ and $1$ by default,
+these values are not standardized to be zero-mean and unit-variance.
+Instead of feeding these images as-is to the model, we can first normalize these values for each channel.
+The \texttt{transform} argument of \texttt{torchvision.datasets.CIFAR10} allows to
+apply multiple transformations to the original image data.
+For that, multiple transformations can be first composed via \texttt{torchvision.transforms.Compose},
+and the result can be given as an argument to \texttt{transform}.
+Use \texttt{transforms.Normalize} to normalize the data to have mean 0 and standard deviation (std) 1 (carefully check its \href{https://pytorch.org/vision/0.8/transforms.html}{documentation}). \textit{Hint: means/stds for each channel in the original training data are: means=(0.4914, 0.4822, 0.4465) and stds=(0.247, 0.243, 0.261). You can use the same values for all data splits: training, validation (introduced later), test.}
+
+\item (Bonus, 10 pt) Write and execute code to verify that the mean/std statistics provided above computed using all $50,000$ training images (which includes the validation part introduced in the next question) are correct.
+
+\item (5 pt) The original dataset does not contain a validation set; we need to create one. We'll follow the common procedure (that we saw in Exercise 4): Split the original training set into a validation set (the last $1,000$ images) and an effective training set (the first $49,000$ images). We remind you that you can specify a sampler to be used in a dataloader (\texttt{torch.utils.data.DataLoader}) by providing the \texttt{sampler} argument. In our case, the \href{https://pytorch.org/docs/master/data.html#torch.utils.data.SubsetRandomSampler}{SubsetRandomSampler} is useful because it will pick samples from a given list of indices. Create two separate dataloaders for the training and validation set by using the same original dataset but with different subset samplers.
+% The data should be shuffled: each observation-class pair in the original training set should be assigned at random to one of these sets.
+\end{enumerate}
+
+\subsection{Model}
+\begin{enumerate}
+% \item The class assignments are represented by integers between $0$ and $9$. Create binary assignment matrices (as required by \emph{softmax\_cross\_entropy\_with\_logits\_v2}).
+ \item (10 pt) Implement the following convolutional neural network using rectified linear activation functions (ReLUs):
+ \begin{enumerate}
+    \item Convolutional layer $1$: $32$ filters, $3 \times 3$.
+    \item Convolutional layer $2$: $32$ filters, $3 \times 3$.
+    \item Max-pooling layer $1$: $2 \times 2$ windows.
+    \item Convolutional layer $3$: $64$ filters, $3 \times 3$.
+    \item Convolutional layer $4$: $64$ filters, $3 \times 3$.
+    \item Max-pooling layer $2$: $2 \times 2$ windows.
+    \item Fully connected layer $1$: $512$ units.
+    \item Output layer.
+ \end{enumerate}
+For hyper-parameters that are not specified above (e.g., padding), you can use the default
+parameters of the corresponding PyTorch implementations.
+\textit{Hint: Be careful with the activation function for the output layer.}
+\end{enumerate}
+
+\subsection{Training}
+% \item In order to train the network, you will need to generate batches based on your training set. Each epoch should split the training dataset into batches differently. This is easily accomplished by creating a new list of (randomly generated) batches for each epoch.
+\begin{enumerate}
+ \item (20 pt) Implement the training pipeline. Make sure that you can monitor the current training loss and accuracy every $n$ steps (with a reasonable choice of $n$), as well as, validation accuracy after each epoch.
+You should also keep track of the \textbf{best validation accuracy} and the corresponding epoch.
+ \item (1 pt) Use the following \textit{hyperparameters} to train your model:
+ \begin{enumerate}
+    \item SGD optimizer with learning rate $10^{-3}$ and momentum 0.9.
+    \item A batch size of $32$.
+    \item Train for a total of $20$ epochs.
+    \item Use the cross entropy loss.
+ \end{enumerate}
+
+\item (5 pt) Train your model. The final validation accuracy should be above $70\%$.
+
+\item (10 pt) \textbf{Plot} the evolution of the loss and accuracy for your training and validation set.
+Compare the two plots (train vs.~validation) and \textbf{comment}.
+% Give a brief analysis and explanation for the discrepancies and similiarties between the training and validation metrics throughout training.
+
+\item (20 pt) There are many ways to improve performance. 
+Besides searching for better hyperparameters, we may apply model regularization and data augmentation. For the simple architecture described above, \href{http://jmlr.org/papers/v15/srivastava14a.html}{dropout} is an appropriate way to regularize.
+Study how to use  \href{https://pytorch.org/docs/stable/generated/torch.nn.Dropout.html#dropout}{dropout} (\texttt{torch.nn.Dropout}) in PyTorch, and add a dropout layer after each max-pooling layer (for this question, do not put it anywhere else!). 
+\textbf{Explain} what the argument \texttt{p} is. Try three different values of \texttt{p}, \{0.2, 0.5, 0.8\}, \textbf{plot} the learning curves (similar to Q4 above) for each run, and comment how they differ from the previous run without dropout. Note, dropout might slow down convergence; increase the number of epochs if necessary (there is no need to change  other hyper-parameters). Your best model should achieve a validation accuracy over $75\%$.
+
+%\item (10 pt) Experiment with other hyperparameter settings and diligently document your results. Your best model should have a validation accuracy over $75\%$.
+
+\item (10 pt) \textbf{Report} the test set accuracy of the best model you obtained above.
+Randomly select (at least) 4 validation images, \textbf{visualize} them and \textbf{report} the output probability distributions of your best model for each output class for each image. \textit{Hint: the order of the labels is \texttt{('plane', 'car', 'bird', 'cat',
+           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')}}.\\
+Are the model predictions reasonable/correct/wrong?
+
+%\item (Bonus, 5 pt) Replace the ReLU activation fuction by \href{https://pytorch.org/docs/stable/generated/torch.nn.GELU.html}{GELU}. Plot the learning curves and report the final test performance. There is no need to conduct any hyper-parameter tuning; use the same ones you found above.
+
+\item (Bonus, 10 pt) Achieve a test accuracy above 80\%. Describe all changes you needed to achieve it. Plot the learning curves and report the final test performance.
+\textit{NB: This is an ``open-ended'' question for those who are curious.} You should try any ideas/parameters that come to your mind to improve performance. For example, last year, some students replaced the ReLU activation fuction by \href{https://pytorch.org/docs/stable/generated/torch.nn.GELU.html}{GELU}, or added more layers, ... etc. You can report anything you have tried, but the bonus point will be given only if you effectively achieve a test accuracy above 80\%.
+
+\end{enumerate}
+
+\subsection{Questions [5/100 points]}
+Provide a \textbf{brief} answer to the following questions \textbf{in your own words} and add them to your report. You can find more information in the relevant subsections of \href{https://www.deeplearningbook.org/}{chapter 6,8,9 of the Deep Learning Book}.
+\begin{enumerate}
+\item (1 pt) When (for what purpose) do you use softmax activation? (max one sentence)
+\item (1 pt) Here we used a non-zero momentum in the SGD optimizer. In this case, the optimizer accumulates a \textit{certain quantity} with a decay factor specified by the momentum value. Name this quantity. \textit{Hint: read the PyTorch documentation of \texttt{torch.optim.SGD}.}
+%\item (2 pt) What is the difference between a convolutional and a fully-connected layer in terms of how parameters are used?
+\item (1 pt) Here we used 2D convolution for images. Name one example type of data for which you may want to use 1D convolution. 
+% \item Why do we use the cross entropy loss function for classification? 
+\item (2 pt) Test time behavior of dropout is different from its behavior during training. Describe both behaviors (max two sentences).
+\textit{Hint: you can read the PyTorch documentation of \texttt{nn.Dropout}.}
+\end{enumerate}
+
+%\section*{Submission}
+%You should deliver the following by the deadline stipulated on iCorsi3:
+%\begin{itemize}
+% \item \textbf{Report}: a single \emph{pdf} file that clearly and concisely provides evidence that you have accomplished each of the tasks listed above. The report should not contain source code (not even snippets). Instead, if absolutely necessary, briefly mention which functions were used to accomplish a task.
+% \item \textbf{Source code}: a single Python script that could be easily adapted to accomplish each of the tasks listed above.  The source code will be read superficially and checked for plagiarism.
+%% Unless this reveals that your code is suspicious, your grade will be based entirely on the report.
+%Therefore, if a task is accomplished but not documented in the report, it will be considered missing. Note: Jupyter notebook files are not acceptable.
+%\end{itemize}
+%\textbf{Please carefully read the instructions above to prepare your submission.
+%Failure to stick to these rules may result in reduction of points.}
+\end{document}

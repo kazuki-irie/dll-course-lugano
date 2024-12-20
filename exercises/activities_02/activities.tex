@@ -1,0 +1,88 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=.8in]{geometry}
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=magenta
+}
+
+%opening
+\title{Exercise 2}
+\author{Deep Learning Lab}
+
+\begin{document}
+
+\maketitle
+
+\section{PyTorch Basics}
+The objective of this exercise is to get familiar with standard operations in \href{https://pytorch.org/tutorials/}{PyTorch}.
+\subsection{Tensor Basics}
+Make sure that you can:
+ \begin{itemize}
+  \item Create tensors and inspect their shape and data type.
+\item Create random tensors with a shape you specify.
+  \item Perform element-wise arithmetic operations between tensors.
+  \item Perform arithmetic operations between tensors and scalars.
+  \item Perform matrix multiplications.
+  \item Perform unary operations on tensors (e.g., \texttt{max}, \texttt{sum}) along different axes.
+  \item Apply functions element-wise to a tensor (e.g., \texttt{exp}).
+  \item Slice tensors, index using lists of elements, and index using Boolean arrays.
+\item Use build-in constructors to generate standard tensors (\texttt{zeros}, \texttt{eyes}, ...).
+\item Use \texttt{fill\_}.
+\item Transpose tensors and permute their dimensions.
+  \item Reshape tensors. Reshape using -1 as an index.
+\item Concatenate tensors. Split tensors.
+\item Implement a bit more complex operations using multiple basic operations; e.g.
+write a function which, given two tensors A and B, returns \texttt{True} if A and B are equal or if all elements of A and B are equal except where B's element is 1. 
+\item Construct your own example to test the function above.
+ \end{itemize}
+
+\subsection{Gradient Descent by Hand}
+\begin{enumerate}
+% \item Execute each of the examples presented during the lecture (Slides 21, 22, 23, 25, and 28-29).
+ \item Consider the function $f$ given by
+ \begin{equation*}
+  f(x, y) = \frac{x^2}{2} + 2y^2.
+ \end{equation*}
+ Using \href{https://matplotlib.org/users/pyplot_tutorial.html}{Matplotlib}, it is possible to create a contour plot for $f$:
+ \begin{lstlisting}[language=Python, frame=tb, caption=Contour plot using Matplotlib.]
+import matplotlib.pyplot as plt
+
+def f(x, y):
+    return ((x**2) / 2.) + (2 * y**2)
+
+def create_contour_plot(low=-1000, high=1000, points=50):
+    f_range = np.linspace(low, high, points)
+    
+    X, Y = np.meshgrid(f_range, f_range)
+    Z = f(X, Y)
+    
+    plt.contour(X, Y, Z, colors='b')
+ \end{lstlisting}
+
+You can visualize the result using \texttt{plt.show}, or even draw on top of this contour plot (for instance, using \texttt{plt.plot}).
+ 
+ \begin{enumerate}
+%    \item Adapt the snippet in Slide 25 to find the global minimum of $f$. 
+    \item Use $20$ iterations of gradient descent with a learning rate of $0.1$ to find the global minimum of $f$. Initialize both $x$ and $y$ to $-1000$. Hint: represent $x$ and $y$ by a two-dimensional vector $(x, y)$,
+and express $f$ using a dot product.
+    \item Use Matplotlib to plot the optimization trajectory (sequence of coordinates) on top of the contour plot for $f$. Did the optimization procedure succeed? What happens if the learning rate is too low/high? Use the marker style 'r.-' with \texttt{plt.plot}.
+ \end{enumerate}
+
+% \item Consider the task of minimizing a function $f$. In momentum-based gradient descent, each parameter $x$ has a corresponding velocity $v$. The initial velocity $v_0$ is given by $v_0 = 0$, and
+% \begin{equation*}
+%  v_{t+1} = \mu v_t - \eta f'(x_t),
+% \end{equation*}
+%where $0 \leq \mu \leq 1$ is the so-called momentum coefficient, $\eta$ is the learning rate, and $f'$ is the derivative of $f$ with respect to $x$. Each parameter is updated according to $x_{t+1} = x_{t} + v_{t+1}$.
+%
+%Adapt your solution to the previous exercise to use momentum-based gradient descent. Use $\mu = 0.5$. What happens if the momentum coefficient $\mu$ is too large? What happens if the momentum coefficient is zero? Tip: use an additional tf.Variable to store the velocities, and update velocities and parameters separately.
+
+\end{enumerate}
+
+\end{document}
